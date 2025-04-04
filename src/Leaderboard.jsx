@@ -106,7 +106,7 @@ export default function Leaderboard() {
       </div>
 
       <div className="text-center mt-8 text-sm text-gray-500">
-        ⚡ Updated after each match • Built by your friendly fantasy admin 😎
+        ⚡ Updated after each match • Built by Pranav Reddy 😎
       </div>
     </main>
   );
