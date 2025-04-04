@@ -1,37 +1,111 @@
-
 import React, { useEffect, useState } from "react";
+import CountUp from 'react-countup';
 
 const cn = (...classes) => classes.filter(Boolean).join(" ");
 
 export default function Leaderboard() {
   const [data, setData] = useState([]);
+  const [topUsersByMode, setTopUsersByMode] = useState({});
+  const [lastUpdated, setLastUpdated] = useState(null);
   const [search, setSearch] = useState("");
+  const [activeMode, setActiveMode] = useState("all");
 
   useEffect(() => {
-    fetch("/currently_winnings.json")
-      .then((res) => res.json())
-      .then(setData);
-  }, []);
+  fetch("/currently_winnings.json")
+    .then((res) => res.json())
+    .then(json => {
+      setData(json);
+      const updated = new Date(document.lastModified).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      setLastUpdated(updated);
+      const topByMode = {};
+      const numericFields = [
+        'mode1', 'mode2', 'mode4_winnings', 'mode5', 'mode7_winnings', 'mode8_winnings'
+      ];
+      numericFields.forEach(mode => {
+        const max = Math.max(...json.map(u => u[mode] || 0));
+        topByMode[mode] = json.filter(u => u[mode] === max).map(u => u.username);
+      });
+      setTopUsersByMode(topByMode);
+    });
+}, []);
 
   const filtered = data
-    .filter(user => user.username.toLowerCase() !== "inamitables")
-    .map(user => ({
-      ...user,
-      username: user.username.replace(/\s*you\b/i, "")
-    }))
-    .filter(user => user.username.toLowerCase().includes(search.toLowerCase()));
+  .filter(user => user.username.toLowerCase() !== "inamitables")
+  .map(user => ({
+    ...user,
+    username: user.username.replace(/\s*you\b/i, "")
+  }))
+  .filter(user => user.username.toLowerCase().includes(search.toLowerCase()))
+  .sort((a, b) => {
+    if (activeMode === "all") return 0;
+
+    const key =
+      activeMode === "mode4"
+        ? "mode4_points"
+        : activeMode === "mode7"
+        ? "mode7_points"
+        : activeMode === "mode8"
+        ? "mode8_winnings"
+        : activeMode;
+
+    return (b[key] || 0) - (a[key] || 0);
+  });
 
   return (
     <main className="p-8 max-w-[1400px] mx-auto text-gray-800 bg-gradient-to-br from-purple-100 via-white to-indigo-100 min-h-screen">
       <div className="text-center mb-6">
+        <p className="text-xs text-gray-600 font-medium mb-1">
+          Last updated: {lastUpdated || "Loading..."}
+        </p>
         <div className="flex justify-center">
-          <img src="/ipl-logo.png" alt="IPL 2025" className="h-24 drop-shadow-lg rounded-xl" />
+          <img
+            src="/ipl-logo.png"
+            alt="IPL 2025"
+            className="h-24 drop-shadow-lg rounded-xl"
+          />
         </div>
         <h1 className="text-5xl font-extrabold text-center text-indigo-800 tracking-wide mt-2">
           DREAMAUTH CHAMPIONSHIP - 2025
         </h1>
         <div className="text-center text-sm text-red-600 italic mt-2">
-          📌 Mode 3 will be updated at the end of the IPL season
+          📌 Mode 3 will be updated at the end of the IPL season<br />📌 Mode 6 will be updated after the 1st half of the IPL season
+        </div>
+      </div>
+
+      <div className="flex justify-center mb-4">
+        <div className="flex gap-2 flex-wrap">
+          {['all', 'mode1', 'mode2', 'mode4', 'mode5', 'mode7', 'mode8'].map(mode => (
+            <button
+              key={mode}
+              onClick={() => setActiveMode(mode)}
+              className={`px-3 py-1 rounded-full text-sm font-semibold border border-indigo-400 transition-all hover:bg-indigo-100 ${activeMode === mode ? 'bg-indigo-500 text-white' : 'text-emerald-700 bg-white'}`}
+            >
+              {mode === 'all' ? 'All Modes' : (
+  <>
+    Mode {mode.replace('mode', '')}
+    <span
+      className="ml-1 cursor-pointer"
+      title={
+        mode === 'mode1' ? 'Daily Fantasy Group Leaderboard' :
+        mode === 'mode2' ? 'Manager Mode Season Long' :
+        mode === 'mode4' ? 'The Ultimate Fantasy Team' :
+        mode === 'mode5' ? 'Mid-Season Leader in Daily Fantasy' :
+        mode === 'mode7' ? 'THALA for a reason: Points from Matches 7,14,21,...' :
+        mode === 'mode8' ? 'Ultimate Booster Effect: Best Booster Use Score' : ''
+      }
+    >
+      ℹ️
+    </span>
+  </>
+)}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -45,64 +119,82 @@ export default function Leaderboard() {
         />
       </div>
 
-      <div className="rounded-xl bg-white shadow-2xl border border-indigo-300 overflow-x-auto">
-        <table className="w-full min-w-[1300px] table-fixed border-collapse border border-gray-300">
-          <thead className="bg-indigo-700 text-white">
-            <tr className="text-sm">
-              <th className="p-3 border border-white text-center">#</th>
-              <th className="p-3 border border-white text-left">Username</th>
-              <th className="p-3 border border-white text-center">Mode 1</th>
-              <th className="p-3 border border-white text-center">Mode 2</th>
-              <th className="p-3 border border-white text-center">Mode 4</th>
-              <th className="p-3 border border-white text-center">Mode 5</th>
-              <th className="p-3 border border-white text-center">Mode 6</th>
-              <th className="p-3 border border-white text-center">Mode 7</th>
-              <th className="p-3 border border-white text-center">Mode 8</th>
-              <th className="p-3 border border-white text-right">Total</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-300 text-sm leading-6">
-            {filtered.map((user, i) => (
-              <tr
-                key={user.username}
-                className={cn("text-sm", {
-                  "bg-yellow-50 font-semibold": i === 0,
-                  "bg-white": i % 2 === 0,
-                  "bg-gray-50": i % 2 !== 0
-                })}
-              >
-                <td className="p-3 text-center border border-gray-300">{i + 1}</td>
-                <td className="p-3 whitespace-nowrap border border-gray-300">{user.username}</td>
-                <td className="p-3 text-center border border-gray-300">
-                  {user.mode1 > 0 ? `₹${user.mode1}` : "-"}
-                </td>
-                <td className="p-3 text-center border border-gray-300">
-                  {user.mode2 > 0 ? `₹${user.mode2}` : "-"}
-                </td>
-                <td className="p-3 text-center border border-gray-300 font-mono">
-                  <span className="text-blue-700">{user.mode4_points} pts</span>
-                  <span className="text-amber-600"> / ₹{user.mode4_winnings}</span>
-                </td>
-                <td className="p-3 text-center border border-gray-300">
-                  {user.mode5 > 0 ? `₹${user.mode5}` : "-"}
-                </td>
-                <td className="p-3 text-center border border-gray-300">
-                  {user.mode6 > 0 ? `₹${user.mode6}` : "-"}
-                </td>
-                <td className="p-3 text-center border border-gray-300 font-mono">
-                  <span className="text-blue-700">{user.mode7_points} pts</span>
-                  <span className="text-amber-600"> / ₹{user.mode7_winnings}</span>
-                </td>
-                <td className="p-3 text-center border border-gray-300 text-amber-600 font-semibold">
-                  ₹{user.mode8_winnings}
-                </td>
-                <td className="p-3 text-right border border-gray-300 text-indigo-800 font-bold text-base bg-indigo-50">
-                  ₹{user.total.toLocaleString()}
-                </td>
+      <div className="rounded-xl bg-gradient-to-tr from-white to-indigo-50 shadow-2xl border border-indigo-300 mx-auto max-w-[95vw]">
+        <div className="overflow-x-auto max-h-[70vh] overflow-y-auto">
+          <table className="w-full min-w-[1300px] table-fixed border border-gray-300 shadow-md bg-white rounded-lg">
+            <thead className="bg-indigo-700 text-white sticky top-0 z-20 shadow-md whitespace-nowrap">
+              <tr className="text-sm">
+                <th className="p-3 border border-white text-center">#</th>
+                <th className="p-3 border border-white text-left">Username</th>
+                {activeMode === 'all' || activeMode === 'mode1' ? <th className="p-3 border border-white text-center">Mode 1</th> : null}
+                {activeMode === 'all' || activeMode === 'mode2' ? <th className="p-3 border border-white text-center">Mode 2</th> : null}
+                {activeMode === 'all' || activeMode === 'mode4' ? <th className="p-3 border border-white text-center">Mode 4</th> : null}
+                {activeMode === 'all' || activeMode === 'mode5' ? <th className="p-3 border border-white text-center">Mode 5</th> : null}
+                
+                {activeMode === 'all' || activeMode === 'mode7' ? <th className="p-3 border border-white text-center">Mode 7</th> : null}
+                {activeMode === 'all' || activeMode === 'mode8' ? <th className="p-3 border border-white text-center">Mode 8</th> : null}
+                {activeMode === 'all' ? <th className="p-3 border border-white text-right">Total</th> : null}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-300 text-sm leading-7">
+              {filtered.map((user, i) => (
+                <tr
+                  key={user.username}
+                  className={cn("text-sm border-t", {
+                    "bg-yellow-50 font-semibold": i === 0,
+                    "bg-white": i % 2 === 0,
+                    "bg-gray-50": i % 2 !== 0
+                  })}
+                >
+                  <td className="p-4 text-center font-semibold border border-gray-300 bg-white">
+  {i === 0 ? <span className="text-xl">🥇</span> : i === 1 ? <span className="text-xl">🥈</span> : i === 2 ? <span className="text-xl">🥉</span> : i + 1}
+</td>
+                  <td className="p-4 border border-gray-300 bg-white text-left max-w-[200px] truncate" title={user.username}>{user.username}</td>
+                  {activeMode === 'all' || activeMode === 'mode1' ? (
+  <td className={`p-4 text-center border border-gray-300 bg-white ${topUsersByMode.mode1?.includes(user.username) ? 'bg-emerald-200' : ''}`}>
+    {user.mode1 > 0 ? <span className='text-yellow-600'><CountUp end={user.mode1} duration={1.2} separator="," prefix="₹" /></span> : "-"}
+  </td>
+) : null}
+                  {activeMode === 'all' || activeMode === 'mode2' ? (
+  <td className={`p-4 text-center border border-gray-300 bg-white ${topUsersByMode.mode2?.includes(user.username) ? 'bg-emerald-200' : ''}`}>
+    {user.mode2 > 0 ? <span className='text-yellow-600'><CountUp end={user.mode2} duration={1.2} separator="," prefix="₹" /></span> : "-"}
+  </td>
+) : null}
+                  {activeMode === 'all' || activeMode === 'mode4' ? (
+  <td className={`p-4 text-center font-mono border border-gray-300 bg-white ${topUsersByMode.mode4_winnings?.includes(user.username) ? 'bg-emerald-200' : ''}`}>
+    <span className="text-blue-700">{user.mode4_points} pts</span>
+    <span className="text-amber-600"> / <CountUp end={user.mode4_winnings} duration={1.2} separator="," prefix="₹" /></span>
+  </td>
+) : null}
+                  {activeMode === 'all' || activeMode === 'mode5' ? (
+  <td className={`p-4 text-center border border-gray-300 bg-white ${topUsersByMode.mode5?.includes(user.username) ? 'bg-emerald-200' : ''}`}>
+    {user.mode5 > 0 ? <span className='text-yellow-600'><CountUp end={user.mode5} duration={1.2} separator="," prefix="₹" /></span> : "-"}
+  </td>
+) : null}
+                  {activeMode === 'all' || activeMode === 'mode7' ? (
+  <td className={`p-4 text-center font-mono border border-gray-300 bg-white ${topUsersByMode.mode7_winnings?.includes(user.username) ? 'bg-emerald-200' : ''}`}>
+    <span className="text-blue-700">{user.mode7_points} pts</span>
+    <span className="text-amber-600"> / <CountUp end={user.mode7_winnings} duration={1.2} separator="," prefix="₹" /></span>
+  </td>
+) : null}
+                  {activeMode === 'all' || activeMode === 'mode8' ? (
+  <td className={`p-4 text-center text-amber-600 font-semibold border border-gray-300 bg-white ${topUsersByMode.mode8_winnings?.includes(user.username) ? 'bg-emerald-200' : ''}`}>
+    <CountUp end={user.mode8_winnings} duration={1.2} separator="," prefix="₹" />
+  </td>
+) : null}
+                  {activeMode === 'all' ? (
+  <td className="p-4 text-right font-bold text-indigo-800 text-base border border-gray-300 bg-indigo-50">
+    <CountUp end={user.total} duration={1.5} separator="," prefix="₹" />
+  </td>
+) : null}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="sticky bottom-0 bg-white border-t border-gray-300 p-3 text-right font-semibold text-yellow-600 text-sm">
+            <div className="text-yellow-600 font-semibold">Total Prize Pool: ₹1,62,000</div>
+          </div>
+        </div>
       </div>
 
       <div className="text-center mt-8 text-sm text-gray-500">
