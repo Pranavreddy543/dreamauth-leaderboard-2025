@@ -1,9 +1,310 @@
 import React, { useEffect, useState } from "react";
 import CountUp from 'react-countup';
 
+
+
 const cn = (...classes) => classes.filter(Boolean).join(" ");
 
 export default function Leaderboard() {
+  const ultimateTeams = {
+    "Pujan Xi 348432": [
+    "Axar Patel (C)",
+    "Virat Kohli (VC)",
+    "Travis Head",
+    "Abhishek Sharma",
+    "Sunil Narine",
+    "Ruturaj Gaikwad",
+    "Riyan Parag",
+    "Prabhsimran Singh",
+    "Trent Boult",
+    "Varun Chakravarthy",
+    "Rashid-Khan"
+  ],
+  "Pitch Slappers": [
+    "Virat Kohli (C)",
+    "Varun Chakravarthy (VC)",
+    "Angkrish Raghuvanshi",
+    "Yashasvi Jaiswal",
+    "Travis Head",
+    "Harshit Rana",
+    "Pat Cummins",
+    "Abhishek Sharma",
+    "Axar Patel",
+    "Hardik Pandya",
+    "Sanju Samson"
+  ],
+  "Aryan Akhouri": [
+    "Abhishek Sharma (C)",
+    "Shubman Gill (VC)",
+    "Virat Kohli",
+    "Matheesha Pathirana",
+    "Lokesh Rahul",
+    "Jasprit Bumrah",
+    "Heinrich Klaasen",
+    "Tilak Varma",
+    "Yuzvendra Chahal",
+    "Nehal Wadhera",
+    "Sunil Narine"
+  ],
+  "Animesh Eaters": [
+    "Virat Kohli (C)",
+    "Rashid-Khan (VC)",
+    "Jos Buttler",
+    "Shubman Gill",
+    "Yashasvi Jaiswal",
+    "Shashank Singh",
+    "Ravindra Jadeja",
+    "Hardik Pandya",
+    "Glenn Maxwell",
+    "Mohammed Shami",
+    "Yuzvendra Chahal"
+  ],
+  "Kajal Champs": [
+    "Arshdeep Singh (C)",
+    "Yashasvi Jaiswal (VC)",
+    "Quinton de Kock",
+    "Rishabh Pant",
+    "Travis Head",
+    "Shubman Gill",
+    "Axar Patel",
+    "Hardik Pandya",
+    "Yash Dayal",
+    "Varun Chakravarthy",
+    "Noor Ahmad"
+  ],
+  "Kingsmen Bros": [
+    "Travis Head (C)",
+    "Virat Kohli (VC)",
+    "Ruturaj Gaikwad",
+    "Abhishek Sharma",
+    "Shubman Gill",
+    "Philip Salt",
+    "Tilak Varma",
+    "Sunil Narine",
+    "Mohammed Shami",
+    "Varun Chakravarthy",
+    "Rasikh Salam"
+  ],
+  "Saikat Moi": [
+    "Shubman Gill (C)",
+    "Ruturaj Gaikwad (VC)",
+    "Philip Salt",
+    "Virat Kohli",
+    "Yashasvi Jaiswal",
+    "Ravindra Jadeja",
+    "Mohammed Siraj",
+    "Rashid-Khan",
+    "Jofra Archer",
+    "Rinku Singh",
+    "Ayush Badoni"
+  ],
+  "Sajal Team 1043991": [
+    "Virat Kohli (C)",
+    "Hardik Pandya (VC)",
+    "Shubman Gill",
+    "Suryakumar Yadav",
+    "Travis Head",
+    "Jos Buttler",
+    "Sam Curran",
+    "Sunil Narine",
+    "Varun Chakravarthy",
+    "Jasprit Bumrah",
+    "Rasikh Salam"
+  ],
+  "Jatin Ramchandani": [
+    "Rohit Sharma (C)",
+    "Hardik Pandya (VC)",
+    "Andre Russell",
+    "Vaibhav Suryavanshi",
+    "Yuzvendra Chahal",
+    "Shubman Gill",
+    "Ruturaj Gaikwad",
+    "Virat Kohli",
+    "Bhuvneshwar Kumar",
+    "Varun Chakravarthy",
+    "Lokesh Rahul"
+  ],
+  "Sparntans11": [
+    "Virat Kohli (C)",
+    "Sunil Narine (VC)",
+    "Rashid-Khan",
+    "Rishabh Pant",
+    "Travis Head",
+    "Rachin Ravindra",
+    "Shubman Gill",
+    "Mohammed Shami",
+    "Ruturaj Gaikwad",
+    "Varun Chakravarthy"
+  ],
+  "Hala Madrid 1536": [
+    "Yashasvi Jaiswal (C)",
+    "Tilak Varma (VC)",
+    "Travis Head",
+    "Virat Kohli",
+    "Sai Sudharsan",
+    "Philip Salt",
+    "Hardik Pandya",
+    "Sunil Narine",
+    "Pat Cummins",
+    "Varun Chakravarthy",
+    "Rasikh Salam"
+  ],
+  "My Noob 11": [
+    "Sai Sudharsan (C)",
+    "Harshal Patel (VC)",
+    "Anshul Kamboj",
+    "Jake Fraser-McGurk",
+    "Ruturaj Gaikwad",
+    "Axar Patel",
+    "Varun Chakravarthy",
+    "Virat Kohli",
+    "Marcus Stoinis",
+    "Yashasvi Jaiswal",
+    "Quinton de Kock"
+  ],
+  "Joyson Geniuses": [
+    "Sunil Narine (C)",
+    "Virat Kohli (VC)",
+    "Rashid-Khan",
+    "Ravindra Jadeja",
+    "Rachin Ravindra",
+    "Shubman Gill",
+    "Pat Cummins",
+    "Suryakumar Yadav",
+    "Shashank Singh",
+    "Varun Chakravarthy",
+    "Lokesh Rahul"
+  ],
+  "Evil Heroes": [
+    "Virat Kohli (C)",
+    "Sunil Narine (VC)",
+    "Prabhsimran Singh",
+    "Abhishek Sharma",
+    "Hardik Pandya",
+    "Travis Head",
+    "Yashasvi Jaiswal",
+    "Shubman Gill",
+    "Jasprit Bumrah",
+    "Rashid-Khan",
+    "Harshal Patel"
+  ],
+  "Dhaval Bhanderi 11": [
+    "Ruturaj Gaikwad (C)",
+    "Sunil Narine (VC)",
+    "Lokesh Rahul",
+    "Yashasvi Jaiswal",
+    "Shubman Gill",
+    "Virat Kohli",
+    "Tilak Varma",
+    "Shashank Singh",
+    "Varun Chakravarthy",
+    "Harshal Patel",
+    "Arshdeep Singh"
+  ],
+  "Logansparky": [
+    "Ruturaj Gaikwad (C)",
+    "Sunil Narine (VC)",
+    "Travis Head",
+    "Abhishek Sharma",
+    "Trent Boult",
+    "Sanju Samson",
+    "Ayush Badoni",
+    "Mohammed Shami",
+    "Varun Chakravarthy",
+    "Hardik Pandya"
+  ],
+  "Shub 05": [
+    "Virat Kohli (C)",
+    "Varun Chakravarthy (VC)",
+    "Lokesh Rahul",
+    "Ruturaj Gaikwad",
+    "Shubman Gill",
+    "Shreyas Iyer",
+    "Ayush Badoni",
+    "Hardik Pandya",
+    "Axar Patel",
+    "Arshdeep Singh",
+    "Mohammed Siraj"
+  ],
+  "The Magic Knights": [
+    "Virat Kohli (C)",
+    "Matheesha Pathirana (VC)",
+    "Heinrich Klaasen",
+    "Prabhsimran Singh",
+    "Ruturaj Gaikwad",
+    "Sai Sudharsan",
+    "Tilak Varma",
+    "Abhishek Sharma",
+    "Axar Patel",
+    "Varun Chakravarthy",
+    "Trent Boult"
+  ],
+  "Sesha Stark": [
+    "Shubman Gill (C)",
+    "Ruturaj Gaikwad (VC)",
+    "Philip Salt",
+    "Yashasvi Jaiswal",
+    "Virat Kohli",
+    "Abhishek Sharma",
+    "Sunil Narine",
+    "Andre Russell",
+    "Varun Chakravarthy",
+    "Trent Boult",
+    "Yash Dayal"
+  ],
+  "11 Stars Stats": [
+    "Virat Kohli (C)",
+    "Hardik Pandya (VC)",
+    "Yashasvi Jaiswal",
+    "Travis Head",
+    "Tilak Varma",
+    "Riyan Parag",
+    "Lokesh Rahul",
+    "Shubman Gill",
+    "Pat Cummins",
+    "Varun Chakravarthy",
+    "Rasikh Salam"
+  ],
+  "Paranoidfloyd": [
+    "Sunil Narine (C)",
+    "Axar Patel (VC)",
+    "Prabhsimran Singh",
+    "Virat Kohli",
+    "Abhishek Sharma",
+    "Hardik Pandya",
+    "Shubman Gill",
+    "Kuldeep Yadav",
+    "Rashid-Khan",
+    "Varun Chakravarthy",
+    "Rajat Patidar"
+  ],
+  "Lizozil": [
+    "Virat Kohli (C)",
+    "Travis Head (VC)",
+    "Lokesh Rahul",
+    "Shubman Gill",
+    "Rashid-Khan",
+    "Tilak Varma",
+    "Rachin Ravindra",
+    "Rasikh Salam",
+    "Jasprit Bumrah",
+    "Varun Chakravarthy",
+    "Sunil Narine"
+  ],
+  "Ben Eleven 3011": [
+    "Abhishek Sharma (C)",
+    "Shreyas Iyer (VC)",
+    "Travis Head",
+    "Lokesh Rahul",
+    "Riyan Parag",
+    "Virat Kohli",
+    "Rachin Ravindra",
+    "Shashank Singh",
+    "Arshdeep Singh",
+    "Avesh Khan",
+    "Varun Chakravarthy"
+  ]
+  };
   const [data, setData] = useState([]);
   const [topUsersByMode, setTopUsersByMode] = useState({});
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -32,6 +333,25 @@ export default function Leaderboard() {
         topByMode[mode] = json.filter(u => u[mode] === max).map(u => u.username);
       });
       setTopUsersByMode(topByMode);
+      // Load ultimate team tooltips
+fetch("/final_mapped_users_ipl2025.json")
+  .then(res => res.json())
+  .then(teamData => {
+    fetch("/full_players.json")
+      .then(res => res.json())
+      .then(playerData => {
+        const playerMap = {};
+        Object.values(playerData).forEach(p => {
+          playerMap[p.PlayerId] = p.PlayerName;
+        });
+        const userTeams = {};
+        teamData.forEach(entry => {
+          const team = entry.playerIds.map(id => playerMap[id] || id);
+          userTeams[entry.user.replace(/\s*you\b/i, "")] = team;
+        });
+        setUltimateTeams(userTeams);
+      });
+  });
     });
 }, []);
 
@@ -162,7 +482,12 @@ export default function Leaderboard() {
 ) : null}
                   {activeMode === 'all' || activeMode === 'mode4' ? (
   <td className={`p-4 text-center font-mono border border-gray-300 bg-white ${topUsersByMode.mode4_winnings?.includes(user.username) ? 'bg-emerald-200' : ''}`}>
-    <span className="text-blue-700">{user.mode4_points} pts</span>
+    <span
+  className="text-blue-700 cursor-pointer"
+  title={ultimateTeams[user.username]?.join(', ') || 'No team submitted'}
+>
+  {user.mode4_points} pts
+</span>
     <span className="text-amber-600"> / <CountUp end={user.mode4_winnings} duration={1.2} separator="," prefix="₹" /></span>
   </td>
 ) : null}
