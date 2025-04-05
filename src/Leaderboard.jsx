@@ -482,13 +482,24 @@ fetch("/final_mapped_users_ipl2025.json")
 ) : null}
                   {activeMode === 'all' || activeMode === 'mode4' ? (
   <td className={`p-4 text-center font-mono border border-gray-300 bg-white ${topUsersByMode.mode4_winnings?.includes(user.username) ? 'bg-emerald-200' : ''}`}>
-    <span
-  className="text-blue-700 cursor-pointer"
-  title={ultimateTeams[user.username]?.join(', ') || 'No team submitted'}
->
-  {user.mode4_points} pts
-</span>
-    <span className="text-amber-600"> / <CountUp end={user.mode4_winnings} duration={1.2} separator="," prefix="₹" /></span>
+    <div className="flex flex-col items-center">
+  <span
+    className="text-blue-700 cursor-pointer"
+    title={ultimateTeams[user.username]?.join(', ') || 'No team submitted'}
+  >
+    {user.mode4_points} pts
+  </span>
+  <span className="text-amber-600">
+    / <CountUp end={user.mode4_winnings} duration={1.2} separator="," prefix="₹" />
+  </span>
+  {activeMode === 'mode4' && ultimateTeams[user.username] && (
+    <ul className="text-xs text-gray-600 mt-1 list-disc text-left pl-4 leading-snug max-w-[220px]">
+      {ultimateTeams[user.username].map((player, index) => (
+        <li key={index}>{player}</li>
+      ))}
+    </ul>
+  )}
+</div>
   </td>
 ) : null}
                   {activeMode === 'all' || activeMode === 'mode5' ? (
